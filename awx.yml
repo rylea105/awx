@@ -86,17 +86,17 @@
       state: latest
 
   - name: clone awx
-    shell: git clone https://github.com/ansible/awx.git /var/tmp/awx
+    shell: git clone https://github.com/ansible/awx.git ./awx
     ignore_errors: yes
 
   - name: Disable dockerhub reference in order to build local images
-    shell: sed -i "s|^dockerhub_base=ansible|#dockerhub_base=ansible|g" /var/tmpawx/installer/inventory
+    shell: sed -i "s|^dockerhub_base=ansible|#dockerhub_base=ansible|g" ./awx/installer/inventory
 
   - name: Create a folder in /opt/ to hold awx psql data
     shell: mkdir -p /opt/awx-psql-data
 
   - name: Provide psql data path to installer
-    shell: sed -i "s|^postgres_data_dir.*|postgres_data_dir=/opt/awx-psql-data|g" /var/tmpawx/installer/inventory
+    shell: sed -i "s|^postgres_data_dir.*|postgres_data_dir=/opt/awx-psql-data|g" ./awx/installer/inventory
 
   - name: Create awx-ssl folder in /etc
     shell: mkdir -p /etc/awx-ssl/
@@ -114,28 +114,28 @@
     shell: cat /etc/awx-ssl/awx.key /etc/awx-ssl/awx.crt > /etc/awx-ssl/awx-bundled-key.crt
 
   - name: Pass the full path of awx-bundled-key.crt file to ssl_certificate variable in inventory
-    shell: sed -i -E "s|^#([[:space:]]?)ssl_certificate=|ssl_certificate=/etc/awx-ssl/awx-bundled-key.crt|g" /var/tmpawx/installer/inventory
+    shell: sed -i -E "s|^#([[:space:]]?)ssl_certificate=|ssl_certificate=/etc/awx-ssl/awx-bundled-key.crt|g" ./awx/installer/inventory
 
   - name: Download awx-logos repository
-    shell: curl -L -o /var/tmpawx-logos.tar.gz https://github.com/ansible/awx-logos/archive/master.tar.gz
+    shell: curl -L -o ./awx-logos.tar.gz https://github.com/ansible/awx-logos/archive/master.tar.gz
 
   - name: Extract awx-logos repository
     unarchive:
-      src: /var/tmpawx-logos.tar.gz
-      dest: /var/tmp
+      src: ./awx-logos.tar.gz
+      dest: ./
       remote_src: yes
 
   - name: Rename awx-logos-master folder as awx-logos
-    shell: mv /var/tmpawx-logos-master /var/tmpawx-logos
+    shell: mv ./awx-logos-master ./awx-logos
 
   - name: Remove tarball
-    shell: rm -f /var/tmp*awx*.tar.gz
+    shell: rm -f ./*awx*.tar.gz
 
   - name: Change dir to awx and replace awx_official parameter
-    shell: sed -i -E "s|^#([[:space:]]?)awx_official=false|awx_official=true|g" /var/tmpawx/installer/inventory
+    shell: sed -i -E "s|^#([[:space:]]?)awx_official=false|awx_official=true|g" ./awx/installer/inventory
 
   - name: Define the default admin username
-    shell: sed -i "s|^admin_user=.*|admin_user=admin|g" /var/tmpawx/installer/inventory
+    shell: sed -i "s|^admin_user=.*|admin_user=admin|g" ./awx/installer/inventory
 
   - name: Set a password for the admin
-    shell: sed -i "s|^admin_password=.*|admin_password=password|g" /var/tmpawx/installer/inventory
+    shell: sed -i "s|^admin_password=.*|admin_password=password|g" ./awx/installer/inventory
