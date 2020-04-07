@@ -14,11 +14,6 @@
       - ansible
       state: latest
 
-  # - name: Install python
-  #   shell: yum install -y python3 | yum install -y python3-devel | yum install -y python3-setuptools
-
-  # - name: Install pip
-  #   shell: easy_install-3.6 pip
   - name: Install epel-release
     yum:
       name:
@@ -41,19 +36,19 @@
       - lvm2
       state: latest
 
-  - name: Enable docker-ce repo
-    shell: "yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo"
+  # - name: Enable docker-ce repo
+  #   shell: "yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo"
 
-  - name: Install docker engine
-    yum:
-      name: docker-ce
-      state: latest
+  # - name: Install docker engine
+  #   yum:
+  #     name: docker-ce
+  #     state: latest
 
-  - name: Start and Enable docker
-    service:
-      name: docker
-      state: started
-      enabled: yes
+  # - name: Start and Enable docker
+  #   service:
+  #     name: docker
+  #     state: started
+  #     enabled: yes
 
   - name: Install gcc
     yum:
@@ -85,7 +80,7 @@
   - name: Install docker-py
     shell: pip install docker-py
 
-  - name: Install docker-py
+  - name: upgrade docker-py
     shell: pip install --upgrade docker-py
 
   - name: Install docker-compose
@@ -97,7 +92,7 @@
       state: latest
 
   - name: clone awx
-    shell: git clone https://github.com/ansible/awx.git .
+    shell: git clone https://github.com/ansible/awx.git ./awx
     ignore_errors: yes
 
   - name: Disable dockerhub reference in order to build local images
