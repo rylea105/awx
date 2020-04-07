@@ -1,0 +1,152 @@
+---
+- name: Install AWX with Docker
+  hosts: localhost
+  gather_facts: no
+  become: yes
+  tasks:
+  - name: Update 
+    shell: yum update -y
+
+  - name: Install epel-release
+    yum:
+      name:
+      - epel-release
+      - ansible
+      state: latest
+
+  # - name: Install python
+  #   shell: yum install -y python3 | yum install -y python3-devel | yum install -y python3-setuptools
+
+  # - name: Install pip
+  #   shell: easy_install-3.6 pip
+  - name: Install epel-release
+    yum:
+      name:
+      - python-pip
+      state: latest
+
+  - name: Upgrade pip
+    shell: pip install --upgrade pip
+
+  - name: Install jq
+    yum:
+      name: jq
+      state: latest
+
+  - name: Install docker-ce related packages
+    yum:
+      name:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+      state: latest
+
+  - name: Enable docker-ce repo
+    shell: "yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo"
+
+  - name: Install docker engine
+    yum:
+      name: docker-ce
+      state: latest
+
+  - name: Start and Enable docker
+    service:
+      name: docker
+      state: started
+      enabled: yes
+
+  - name: Install gcc
+    yum:
+      name:
+      - gcc
+      state: latest
+
+  # - name: Install python-virtualenv
+  #   yum:
+  #     name:
+  #     - python-virtualenv
+  #     state: latest
+
+  # - name: virtualenv venv
+  #   shell: virtualenv venv
+
+  # - name: source venv
+  #   shell: source venv/bin/activate
+
+  - name: Install six
+    shell: pip install --upgrade six
+    
+  - name: Install cffi
+    shell: pip install --upgrade cffi
+
+  - name: Install selinux
+    shell: pip install selinux
+
+  - name: Install docker-py
+    shell: pip install docker-py
+
+  - name: Install docker-py
+    shell: pip install --upgrade docker-py
+
+  - name: Install docker-compose
+    shell: pip install docker-compose
+
+  - name: Install git
+    yum:
+      name: git
+      state: latest
+
+  - name: clone awx
+    shell: git clone https://github.com/ansible/awx.git .
+    ignore_errors: yes
+
+  - name: Disable dockerhub reference in order to build local images
+    shell: sed -i "s|^dockerhub_base=ansible|#dockerhub_base=ansible|g" ./awx/installer/inventory
+
+  - name: Create a folder in /opt/ to hold awx psql data
+    shell: mkdir -p /opt/awx-psql-data
+
+  - name: Provide psql data path to installer
+    shell: sed -i "s|^postgres_data_dir.*|postgres_data_dir=/opt/awx-psql-data|g" ./awx/installer/inventory
+
+  - name: Create awx-ssl folder in /etc
+    shell: mkdir -p /etc/awx-ssl/
+
+  - name: Make a self-signed ssl certificate
+    shell: >
+      openssl req -subj '/CN=secops.tech/O=Secops Tech/C=TR' \
+      -new -newkey rsa:2048 \
+      -sha256 -days 1365 \
+      -nodes -x509 \
+      -keyout /etc/awx-ssl/awx.key \
+      -out /etc/awx-ssl//awx.crt
+
+  - name: Merge awx.key and awx.crt files
+    shell: cat /etc/awx-ssl/awx.key /etc/awx-ssl/awx.crt > /etc/awx-ssl/awx-bundled-key.crt
+
+  - name: Pass the full path of awx-bundled-key.crt file to ssl_certificate variable in inventory
+    shell: sed -i -E "s|^#([[:space:]]?)ssl_certificate=|ssl_certificate=/etc/awx-ssl/awx-bundled-key.crt|g" ./awx/installer/inventory
+
+  - name: Download awx-logos repository
+    shell: curl -L -o ./awx-logos.tar.gz https://github.com/ansible/awx-logos/archive/master.tar.gz
+
+  - name: Extract awx-logos repository
+    unarchive:
+      src: ./awx-logos.tar.gz
+      dest: ./
+      remote_src: yes
+
+  - name: Rename awx-logos-master folder as awx-logos
+    shell: mv ./awx-logos-master ./awx-logos
+
+  - name: Remove tarball
+    shell: rm -f ./*awx*.tar.gz
+
+  - name: Change dir to awx and replace awx_official parameter
+    shell: sed -i -E "s|^#([[:space:]]?)awx_official=false|awx_official=true|g" ./awx/installer/inventory
+
+  - name: Define the default admin username
+    shell: sed -i "s|^admin_user=.*|admin_user=admin|g" ./awx/installer/inventory
+
+  - name: Set a password for the admin
+    shell: sed -i "s|^admin_password=.*|admin_password=password|g" ./awx/installer/inventory
