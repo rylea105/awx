@@ -36,19 +36,19 @@
       - lvm2
       state: latest
 
-  # - name: Enable docker-ce repo
-  #   shell: "yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo"
+  - name: Enable docker-ce repo
+    shell: "yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo"
 
-  # - name: Install docker engine
-  #   yum:
-  #     name: docker-ce
-  #     state: latest
+  - name: Install docker engine
+    yum:
+      name: docker-ce
+      state: latest
 
-  # - name: Start and Enable docker
-  #   service:
-  #     name: docker
-  #     state: started
-  #     enabled: yes
+  - name: Start and Enable docker
+    service:
+      name: docker
+      state: started
+      enabled: yes
 
   - name: Install gcc
     yum:
@@ -76,12 +76,6 @@
 
   - name: Install selinux
     shell: pip install selinux
-
-  - name: Install docker-py
-    shell: pip install docker-py
-
-  - name: upgrade docker-py
-    shell: pip install --upgrade docker-py
 
   - name: Install docker-compose
     shell: pip install docker-compose
