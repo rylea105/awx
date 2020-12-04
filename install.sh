@@ -4,7 +4,7 @@ yum install -y epel-release
 
 yum install -y ansible
 
-yum install -y python-virtualenv
+yum install -y python3-virtualenv
 virtualenv venv
 source venv/bin/activate
 
