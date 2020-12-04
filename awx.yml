@@ -88,7 +88,7 @@
       state: latest
 
   - name: clone awx
-    shell: git clone -b 12.0.0 https://github.com/ansible/awx.git ./awx
+    shell: git clone -b 10.0.0 https://github.com/ansible/awx.git ./awx
     ignore_errors: yes
 
   - name: Disable dockerhub reference in order to build local images
