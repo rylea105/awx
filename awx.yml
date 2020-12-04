@@ -12,6 +12,7 @@
       name:
       - epel-release
       - ansible
+      - nodejs
       state: latest
 
 #   - name: Install python pip
